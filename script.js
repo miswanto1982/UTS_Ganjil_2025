@@ -1,4 +1,4 @@
-const scriptURL = 'Phttps://script.google.com/macros/s/AKfycbzVIXtjBmqBHwZTSZhujxgXFqsrOOh8R-sRbL1KHz9LeVcHf0QsX4w6HsR0loFFICkfwg/execASTE_URL_APPS_SCRIPT_KAMU_DI_SINI';
+const scriptURL = 'Phttps://script.google.com/macros/s/AKfycbzVIXtjBmqBHwZTSZhujxgXFqsrOOh8R-sRbL1KHz9LeVcHf0QsX4w6HsR0loFFICkfwg/exec';
 const form = document.getElementById('quizForm');
 
 form.addEventListener('submit', e => {
@@ -7,4 +7,5 @@ form.addEventListener('submit', e => {
     .then(response => alert('✅ Jawaban berhasil dikirim!'))
     .catch(error => alert('❌ Gagal mengirim jawaban!'));
   form.reset();
+
 });
