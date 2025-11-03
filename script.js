@@ -1,5 +1,5 @@
 // ✅ URL Google Apps Script kamu — sudah benar dan siap pakai
-const scriptURL = 'https://script.google.com/macros/s/AKfycbzZmwxOOeNn70kWB7boRlGWt1cWrVvd5CYg5DyIbMryeq1HpxAnSm7aios6HitguaRyvQ/exec';
+const scriptURL = 'https://script.google.com/macros/s/AKfycbyHrLk6PpjxRIpXi3160TlY85VbdMVIT7mL6zuXtTtwcX8PI1SRQBiuDVgsPMsPqK_Z/exec';
 
 // Ambil form dengan id quizForm
 const form = document.getElementById('quizForm');
@@ -28,4 +28,5 @@ form.addEventListener('submit', e => {
   // Kosongkan form setelah kirim
   form.reset();
 });
+
 
