@@ -199,6 +199,32 @@
   </footer>
 
   <script src="script.js"></script>
+  <script>
+// ⚠️ Mencegah siswa menutup atau reload halaman sebelum mengirim jawaban
+window.onbeforeunload = function() {
+  return "Apakah Anda yakin ingin meninggalkan halaman ini? Jawaban yang belum dikirim akan hilang.";
+};
+
+// 🚫 Mencegah klik kanan dan tombol pintasan umum
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener('keydown', function(e) {
+  if (e.key === "F5" || e.key === "r" && e.ctrlKey) {
+    e.preventDefault();
+    alert("🚫 Reload dinonaktifkan selama ujian!");
+  }
+  if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
+    e.preventDefault();
+    alert("🚫 Pemeriksaan kode tidak diizinkan!");
+  }
+});
+
+// ✅ Setelah kirim jawaban, izinkan keluar
+const form = document.getElementById('quizForm');
+form.addEventListener('submit', () => {
+  window.onbeforeunload = null;
+});
+</script>
 </body>
 
 </html>
+
