@@ -224,7 +224,46 @@ form.addEventListener('submit', () => {
   window.onbeforeunload = null;
 });
 </script>
+  <script>
+// ⚠️ Mencegah siswa menutup/reload halaman sebelum kirim
+window.onbeforeunload = function() {
+  return "Apakah Anda yakin ingin meninggalkan halaman ini? Jawaban yang belum dikirim akan hilang.";
+};
+
+// 🚫 Nonaktifkan klik kanan
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// 🚫 Nonaktifkan blok teks & copy
+document.addEventListener('copy', e => {
+  e.preventDefault();
+  alert("❌ Menyalin teks soal tidak diizinkan!");
+});
+document.addEventListener('selectstart', e => e.preventDefault());
+
+// 🚫 Nonaktifkan tombol-tombol tertentu
+document.addEventListener('keydown', function(e) {
+  if (e.key === "F5" || (e.ctrlKey && e.key === "r")) {
+    e.preventDefault();
+    alert("🚫 Reload halaman dinonaktifkan selama ujian!");
+  }
+  if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
+    e.preventDefault();
+    alert("🚫 Pemeriksaan kode tidak diizinkan!");
+  }
+  if ((e.ctrlKey && e.key === "u") || (e.ctrlKey && e.key === "c")) {
+    e.preventDefault();
+    alert("🚫 Menyalin teks tidak diperbolehkan!");
+  }
+});
+
+// ✅ Izinkan keluar setelah mengirim jawaban
+const form = document.getElementById('quizForm');
+form.addEventListener('submit', () => {
+  window.onbeforeunload = null;
+});
+</script>
 </body>
 
 </html>
+
 
