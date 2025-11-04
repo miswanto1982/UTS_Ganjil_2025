@@ -58,8 +58,23 @@ footer{text-align:center;margin-top:18px;color:var(--muted);font-size:14px}
 }
 #startScreen h2{margin-bottom:10px}
 .soal label{
-  display:block; /* opsi turun ke bawah */
+  display:block;
   margin:4px 0;
+}
+
+/* overlay untuk deteksi keluar / screenshot */
+#warningOverlay {
+  position: fixed;
+  inset: 0;
+  background: black;
+  color: white;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  z-index: 99999;
 }
 </style>
 </head>
@@ -69,6 +84,8 @@ footer{text-align:center;margin-top:18px;color:var(--muted);font-size:14px}
   <p>Pastikan Anda berada di tempat yang tenang. Klik tombol di bawah ini untuk masuk ke mode layar penuh dan memulai ujian.</p>
   <button id="startBtn">Mulai Ujian</button>
 </div>
+
+<div id="warningOverlay">🚫 Ujian dihentikan! Anda keluar dari mode ujian atau mencoba screenshot.</div>
 
 <div class="wrap hidden" id="quizArea">
   <header>
@@ -304,18 +321,18 @@ footer{text-align:center;margin-top:18px;color:var(--muted);font-size:14px}
   </div>
 
   <!-- ============== SCRIPT: kirim + proteksi + fullscreen ================= -->
- <script>
+<script>
 (function(){
   const startScreen = document.getElementById('startScreen');
   const startBtn = document.getElementById('startBtn');
   const quizArea = document.getElementById('quizArea');
+  const overlay = document.getElementById('warningOverlay');
   const form = document.getElementById('quizForm');
   const submitBtn = document.getElementById('submitBtn');
 
-  // === URL Google Apps Script ===
   const scriptURL = 'https://script.google.com/macros/s/AKfycbzVIXtjBmqBHwZTSZhujxgXFqsrOOh8R-sRbL1KHz9LeVcHf0QsX4w6HsR0loFFICkfwg/exec';
 
-  // === Fungsi Fullscreen ===
+  // === Fullscreen ===
   function enterFullscreen() {
     const el = document.documentElement;
     if (el.requestFullscreen) return el.requestFullscreen();
@@ -328,38 +345,53 @@ footer{text-align:center;margin-top:18px;color:var(--muted);font-size:14px}
     else if (document.msExitFullscreen) document.msExitFullscreen();
   }
 
-  // === Tombol Mulai Ujian ===
+  // Tombol mulai ujian
   startBtn.addEventListener('click', async ()=>{
     try { await enterFullscreen(); } catch(e){ console.warn("Fullscreen gagal:", e); }
-    // animasi hilang
     startScreen.classList.add('hidden');
     setTimeout(()=>{ startScreen.style.display='none'; },400);
     quizArea.classList.remove('hidden');
   });
 
-  // === Proteksi: anti copy, klik kanan, shortcut ===
+  // === Proteksi umum ===
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('copy', e => {e.preventDefault(); alert('Menyalin soal tidak diizinkan.');});
   document.addEventListener('keydown', e=>{
-    if (e.key==='F12' || (e.ctrlKey && ['u','U','c','C','r','R'].includes(e.key))){
+    if (e.key==='F12' || (e.ctrlKey && ['u','U','c','C','r','R','p','P'].includes(e.key))){
       e.preventDefault();
-      alert('Tindakan ini dinonaktifkan selama ujian.');
+      showWarning('Anda mencoba shortcut terlarang.');
     }
   });
+
+  // === Deteksi keluar dari layar penuh / pindah tab ===
   document.addEventListener('visibilitychange', ()=>{
     if (document.hidden){
-      alert('Anda meninggalkan halaman ujian! Harap tetap fokus.');
-      enterFullscreen();
+      showWarning('Anda meninggalkan halaman ujian.');
     }
   });
   document.addEventListener('fullscreenchange', ()=>{
     if (!document.fullscreenElement){
-      alert('Tetap di layar penuh selama ujian!');
-      enterFullscreen();
+      showWarning('Anda keluar dari mode layar penuh.');
     }
   });
 
-  // === Submit Form ===
+  // === Deteksi DevTools terbuka (indikasi mau SC/inspect) ===
+  setInterval(()=>{
+    const threshold = 200;
+    if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold){
+      showWarning('Kemungkinan Anda membuka alat pengembang (DevTools).');
+    }
+  },1000);
+
+  // === Fungsi tampil peringatan ===
+  function showWarning(msg){
+    overlay.style.display='flex';
+    overlay.textContent = "🚫 " + msg + " Ujian dihentikan.";
+    setTimeout(()=>exitFullscreenSafe(),1000);
+    quizArea.style.display='none';
+  }
+
+  // === Kirim jawaban ===
   form.addEventListener('submit', e=>{
     e.preventDefault();
     submitBtn.disabled = true;
