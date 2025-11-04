@@ -1,10 +1,8 @@
-// ✅ URL Google Apps Script kamu — sudah benar dan siap pakai
-const scriptURL = 'https://script.google.com/macros/s/AKfycbxY5CR05yUXgsYg2UG8_QMZ7QHbG4HvCNRBTV-Pqla7QnbBTnEitsjj6tlRvWbo1cxkVg/exec';
+<script>
+const scriptURL = 'https://script.google.com/macros/s/AKfycbxY5CR05yUXgsYg2UG8_QMZ7QHbG4HvCNRBTV-Pqla7QnbBTnEitsjj6tlRvWbo1cxkVg/exec'; // Ganti dengan URL Web App kamu
 
-// Ambil form dengan id quizForm
 const form = document.getElementById('quizForm');
 
-// Saat tombol submit diklik
 form.addEventListener('submit', e => {
   e.preventDefault(); // supaya tidak reload halaman
 
@@ -12,16 +10,15 @@ form.addEventListener('submit', e => {
   fetch(scriptURL, { 
     method: 'POST', 
     body: new FormData(form),
-    mode: 'no-cors' // 🛡️ WAJIB untuk melewati blokir Google
+    mode: 'no-cors' // 🛡️ Wajib agar bisa kirim dari luar domain Google
   })
   .then(() => {
-    // Karena no-cors tidak bisa membaca response, langsung anggap sukses
     alert('✅ Jawaban berhasil dikirim!\nTerima kasih sudah mengerjakan.');
-    form.reset();
+    form.reset(); // Kosongkan form setelah kirim
   })
   .catch(error => {
     console.error('Error:', error);
-    alert('❌ Gagal mengirim jawaban! Pastikan koneksi internet stabil.');
+    alert('❌ Gagal mengirim jawaban! Periksa koneksi internet Anda.');
   });
 });
-
+</script>
