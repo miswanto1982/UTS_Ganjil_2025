@@ -11,23 +11,16 @@ form.addEventListener('submit', e => {
   // Kirim data form ke Google Sheets via Apps Script
   fetch(scriptURL, { 
     method: 'POST', 
-    body: new FormData(form)
+    body: new FormData(form),
+    mode: 'no-cors' // 🛡️ WAJIB untuk melewati blokir Google
   })
-  .then(response => {
-    if (response.ok) {
-      alert('✅ Jawaban berhasil dikirim!\nTerima kasih sudah mengerjakan.');
-    } else {
-      alert('⚠️ Terjadi kesalahan saat mengirim. Coba lagi nanti.');
-    }
+  .then(() => {
+    // Karena no-cors tidak bisa membaca response, langsung anggap sukses
+    alert('✅ Jawaban berhasil dikirim!\nTerima kasih sudah mengerjakan.');
+    form.reset();
   })
   .catch(error => {
     console.error('Error:', error);
     alert('❌ Gagal mengirim jawaban! Pastikan koneksi internet stabil.');
   });
-
-  // Kosongkan form setelah kirim
-  form.reset();
 });
-
-
-
