@@ -299,131 +299,82 @@ footer{text-align:center;margin-top:18px;color:var(--muted);font-size:14px}
   </div>
 
   <!-- ============== SCRIPT: kirim + proteksi + fullscreen ================= -->
-  <script>
-  (function(){
-    // Ganti dengan URL Apps Script milik Anda (sudah Anda berikan sebelumnya)
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzVIXtjBmqBHwZTSZhujxgXFqsrOOh8R-sRbL1KHz9LeVcHf0QsX4w6HsR0loFFICkfwg/exec';
+ <script>
+(function(){
+  const startScreen = document.getElementById('startScreen');
+  const startBtn = document.getElementById('startBtn');
+  const quizArea = document.getElementById('quizArea');
 
-    const form = document.getElementById('quizForm');
-    const submitBtn = document.getElementById('submitBtn');
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbzVIXtjBmqBHwZTSZhujxgXFqsrOOh8R-sRbL1KHz9LeVcHf0QsX4w6HsR0loFFICkfwg/exec';
+  const form = document.getElementById('quizForm');
+  const submitBtn = document.getElementById('submitBtn');
 
-    // ================= PROTEKSI: anti copy, klik kanan, select, keyboard shortcuts =================
-    // mencegah select & copy
-    document.addEventListener('selectstart', e => e.preventDefault());
-    document.addEventListener('copy', e => { e.preventDefault(); alert('Menyalin soal tidak diizinkan.'); });
+  // fungsi fullscreen
+  function enterFullscreen() {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+  }
+  function exitFullscreenSafe() {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+  }
 
-    // nonaktif klik kanan
-    document.addEventListener('contextmenu', e => e.preventDefault());
+  // mulai ujian (dari tombol)
+  startBtn.addEventListener('click', ()=>{
+    enterFullscreen();
+    startScreen.style.display = 'none';
+    quizArea.style.display = 'block';
+    alert('Layar penuh aktif. Selamat mengerjakan ujian!');
+  });
 
-    // nonaktif shortcut umum
-    document.addEventListener('keydown', function(e) {
-      // F5 or Ctrl+R
-      if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
-        e.preventDefault(); alert('Reload dinonaktifkan selama ujian.');
-      }
-      // Devtools / Inspect
-      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i'))) {
-        e.preventDefault(); alert('Akses developer tools dinonaktifkan selama ujian.');
-      }
-      // Ctrl+U (view source) or Ctrl+C (copy)
-      if ((e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.key === 'c')) {
-        e.preventDefault(); alert('Menyalin / melihat sumber tidak diperbolehkan.');
-      }
-    });
-
-    // Warn before unload
-    window.onbeforeunload = function(){
-      return 'Apakah Anda yakin ingin meninggalkan halaman ini? Jawaban yang belum dikirim akan hilang.';
-    };
-
-    // ================= FULLSCREEN handling =================
-    function enterFullscreen() {
-      const el = document.documentElement;
-      if (el.requestFullscreen) el.requestFullscreen();
-      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-      else if (el.msRequestFullscreen) el.msRequestFullscreen();
+  // proteksi dasar
+  document.addEventListener('contextmenu', e=>e.preventDefault());
+  document.addEventListener('copy', e=>{e.preventDefault(); alert('Menyalin soal tidak diizinkan.');});
+  document.addEventListener('keydown', e=>{
+    if (e.key==='F12' || (e.ctrlKey&&['u','U','c','C','r','R'].includes(e.key))) {
+      e.preventDefault(); alert('Tindakan ini dinonaktifkan selama ujian.');
     }
-    function exitFullscreenSafe() {
-      if (document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-      else if (document.msExitFullscreen) document.msExitFullscreen();
+  });
+  document.addEventListener('visibilitychange', ()=>{
+    if (document.hidden){
+      alert('Jangan keluar dari halaman ujian!');
+      enterFullscreen();
     }
+  });
+  document.addEventListener('fullscreenchange', ()=>{
+    if (!document.fullscreenElement){
+      alert('Harus tetap dalam mode layar penuh!');
+      enterFullscreen();
+    }
+  });
 
-    // if user exits fullscreen, warn and try re-enter
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement) {
-        alert('Tetap di layar penuh selama ujian!');
-        try { enterFullscreen(); } catch(e) { /* ignore */ }
-      }
+  // kirim form
+  form.addEventListener('submit', e=>{
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Mengirim...';
+    fetch(scriptURL,{method:'POST',body:new FormData(form)})
+    .then(r=>r.text())
+    .then(()=>{
+      alert('✅ Jawaban berhasil dikirim. Terima kasih.');
+      exitFullscreenSafe();
+      form.reset();
+    })
+    .catch(()=>{
+      alert('❌ Gagal mengirim. Periksa koneksi internet.');
+    })
+    .finally(()=>{
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Kirim Jawaban';
     });
-
-    // auto enter fullscreen on load (ask permission)
-    window.addEventListener('load', () => {
-      setTimeout(()=>{
-        try{
-          // inform then request
-          alert('Ujian akan dimulai dalam mode layar penuh. Klik OK untuk lanjut.');
-          enterFullscreen();
-        }catch(e){}
-      }, 400);
-    });
-
-    // ================= SUBMIT HANDLER =================
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-
-      // validasi minimal: nama, kelas, tanggal
-      const nama = form.nama.value.trim();
-      const kelas = form.kelas.value.trim();
-      const tanggal = form.tanggal.value;
-      if(!nama || !kelas || !tanggal){
-        alert('Lengkapi Nama, Kelas, dan Tanggal terlebih dahulu.');
-        return;
-      }
-
-      // disable tombol untuk mencegah double submit
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Mengirim...';
-
-      // kirim FormData (POST)
-      fetch(scriptURL, {
-        method: 'POST',
-        mode: 'cors',
-        body: new FormData(form)
-      })
-      .then(response => {
-        if (!response.ok) throw new Error('Network response was not ok');
-        return response.text();
-      })
-      .then(txt => {
-        // Berhasil: lepas proteksi, beri notifikasi, keluar fullscreen
-        window.onbeforeunload = null;
-        alert('✅ Jawaban berhasil dikirim. Terima kasih.');
-        try { exitFullscreenSafe(); } catch(e){}
-        // reset form untuk keamanan (opsional)
-        form.reset();
-      })
-      .catch(err => {
-        console.error(err);
-        alert('❌ Gagal mengirim jawaban. Periksa koneksi atau hubungi guru.');
-      })
-      .finally(()=>{
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Kirim Jawaban';
-      });
-    });
-
-    // safety: on visibility change (user tries to switch tab), warn
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        alert('Anda berpindah tab / menyembunyikan jendela — harap kembali ke halaman ujian.');
-        try { enterFullscreen(); } catch(e){}
-      }
-    });
-
-  })();
-  </script>
+  });
+})();
+</script>
 </body>
 </html>
+
 
 
