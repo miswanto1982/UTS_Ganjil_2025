@@ -1,5 +1,5 @@
 // ✅ URL Google Apps Script kamu — sudah benar dan siap pakai
-const scriptURL = 'https://script.google.com/macros/s/AKfycbyHrLk6PpjxRIpXi3160TlY85VbdMVIT7mL6zuXtTtwcX8PI1SRQBiuDVgsPMsPqK_Z/exec';
+const scriptURL = 'https://script.google.com/macros/s/AKfycbxY5CR05yUXgsYg2UG8_QMZ7QHbG4HvCNRBTV-Pqla7QnbBTnEitsjj6tlRvWbo1cxkVg/exec';
 
 // Ambil form dengan id quizForm
 const form = document.getElementById('quizForm');
@@ -24,3 +24,4 @@ form.addEventListener('submit', e => {
     alert('❌ Gagal mengirim jawaban! Pastikan koneksi internet stabil.');
   });
 });
+
