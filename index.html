@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>UTS PWPBB - SMK Negeri 1 Sudimoro (RPL)</title>
+<title>Ujian HTML & CSS - SMK Negeri 1 Sudimoro</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -37,18 +37,30 @@ form.card{
   box-shadow:0 6px 18px rgba(10,80,140,0.06);
 }
 button{
-  background:var(--primary); color:white; border:none; padding:12px 20px; border-radius:10px;
-  cursor:pointer; font-weight:700; font-size:15px;
+  background:var(--primary);
+  color:white;
+  border:none;
+  padding:12px 20px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+  font-size:15px;
   box-shadow:0 6px 12px rgba(7,48,71,0.12);
 }
 footer{text-align:center;margin-top:18px;color:var(--muted);font-size:14px}
 #startScreen{
-  position:fixed;inset:0;background:rgba(0,0,0,0.9);color:white;
+  position:fixed;inset:0;background:rgba(0,0,0,0.92);color:white;
   display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;
-  text-align:center;padding:20px;
+  text-align:center;padding:20px;transition:opacity 0.4s ease;
+}
+#startScreen.hidden{
+  opacity:0;pointer-events:none;visibility:hidden;
 }
 #startScreen h2{margin-bottom:10px}
-.hidden{display:none}
+.soal label{
+  display:block; /* opsi turun ke bawah */
+  margin:4px 0;
+}
 </style>
 </head>
 <body>
@@ -66,18 +78,12 @@ footer{text-align:center;margin-top:18px;color:var(--muted);font-size:14px}
 
   <form id="quizForm" class="card" method="POST" autocomplete="off" novalidate>
     <section class="info">
-      <div class="field">
-        <label>Nama Lengkap</label>
-        <input name="nama" required>
-      </div>
-      <div class="field">
-        <label>Kelas</label>
-        <input name="kelas" required>
-      </div>
-      <div class="field">
-        <label>Tanggal Ujian</label>
-        <input name="tanggal" type="date" required>
-      </div>
+      <label>Nama Lengkap</label>
+      <input name="nama" required><br><br>
+      <label>Kelas</label>
+      <input name="kelas" required><br><br>
+      <label>Tanggal Ujian</label>
+      <input name="tanggal" type="date" required>
     </section>
 
       <h3 style="margin-top:14px">🧠 Pilihan Ganda (15 Soal)</h3>
@@ -324,12 +330,10 @@ footer{text-align:center;margin-top:18px;color:var(--muted);font-size:14px}
 
   // === Tombol Mulai Ujian ===
   startBtn.addEventListener('click', async ()=>{
-    try {
-      await enterFullscreen(); // wajib dipanggil dari gesture klik
-    } catch(e) {
-      console.warn("Fullscreen gagal:", e);
-    }
+    try { await enterFullscreen(); } catch(e){ console.warn("Fullscreen gagal:", e); }
+    // animasi hilang
     startScreen.classList.add('hidden');
+    setTimeout(()=>{ startScreen.style.display='none'; },400);
     quizArea.classList.remove('hidden');
   });
 
@@ -379,3 +383,4 @@ footer{text-align:center;margin-top:18px;color:var(--muted);font-size:14px}
 </script>
 </body>
 </html>
+
